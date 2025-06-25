@@ -183,8 +183,8 @@ with st.sidebar:
 # --- DATA LOADING ---
 @st.cache_data
 def load_data():
-    csv_path = "données.csv"
-    xlsx_path = "données.xlsx"
+    csv_path = "donnees.csv"
+    xlsx_path = "donnees.xlsx"
     if os.path.exists(csv_path):
         df = pd.read_csv(csv_path)
     elif os.path.exists(xlsx_path):
