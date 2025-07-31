@@ -33,6 +33,21 @@ st.markdown("""
             background-color: var(--secondary-background-color);
             max-width: 100% !important;
             min-width: 100% !important;
+            transition: all 0.3s ease-in-out !important;
+            z-index: 1000 !important;
+        }
+        
+        /* Sidebar when collapsed on mobile */
+        section[data-testid="stSidebar"][aria-expanded="false"] {
+            transform: translateX(-100%) !important;
+            opacity: 0.8 !important;
+        }
+        
+        /* Sidebar when expanded on mobile */
+        section[data-testid="stSidebar"][aria-expanded="true"] {
+            transform: translateX(0) !important;
+            opacity: 1 !important;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
         }
         
         /* Main content adjustments */
@@ -40,6 +55,12 @@ st.markdown("""
             padding-left: 1rem !important;
             padding-right: 1rem !important;
             max-width: 100% !important;
+            transition: all 0.3s ease-in-out !important;
+        }
+        
+        /* Smooth transition for main content when sidebar opens */
+        .main .block-container[data-sidebar-expanded="true"] {
+            margin-left: 0 !important;
         }
         
         /* Gradient title responsive */
@@ -60,6 +81,11 @@ st.markdown("""
         .feature-card {
             margin: 0.3em 0 !important;
             padding: 1.2em !important;
+            transition: transform 0.2s ease !important;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px) scale(1.02) !important;
         }
         
         .feature-icon {
@@ -119,6 +145,15 @@ st.markdown("""
         .stButton > button {
             width: 100% !important;
             margin: 0.2rem 0 !important;
+            min-height: 44px !important;
+            font-size: 1.1em !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .stButton > button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
         }
         
         /* Slider responsive */
@@ -135,11 +170,62 @@ st.markdown("""
             width: 100% !important;
             margin: 0.2rem 0 !important;
         }
+        
+        /* Radio buttons responsive */
+        .stRadio > div {
+            padding: 0.5rem !important;
+        }
+        
+        .stRadio > div > label {
+            font-size: 1em !important;
+            padding: 0.8rem !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .stRadio > div > label:hover {
+            background-color: rgba(0, 114, 255, 0.1) !important;
+            transform: translateX(4px) !important;
+        }
+        
+        /* Number input responsive */
+        .stNumberInput > div {
+            padding: 0.5rem !important;
+        }
+        
+        .stNumberInput input {
+            font-size: 1.1em !important;
+            padding: 0.8rem !important;
+            border-radius: 8px !important;
+        }
+        
+        /* Date and time inputs responsive */
+        .stDateInput > div, .stTimeInput > div {
+            padding: 0.5rem !important;
+        }
+        
+        .stDateInput input, .stTimeInput input {
+            font-size: 1.1em !important;
+            padding: 0.8rem !important;
+            border-radius: 8px !important;
+        }
+        
+        /* Selectbox responsive */
+        .stSelectbox > div {
+            padding: 0.5rem !important;
+        }
+        
+        .stSelectbox select {
+            font-size: 1.1em !important;
+            padding: 0.8rem !important;
+            border-radius: 8px !important;
+        }
     }
     
     /* --- Sidebar --- */
     section[data-testid="stSidebar"] {
         background-color: var(--secondary-background-color);
+        transition: all 0.3s ease-in-out !important;
     }
     .sidebar-logo {
         display: flex;
@@ -301,6 +387,35 @@ st.markdown("""
         .stDataFrame > div {
             overflow-x: auto !important;
         }
+        
+        /* Sidebar toggle button improvements */
+        button[data-testid="baseButton-secondary"] {
+            min-height: 44px !important;
+            min-width: 44px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        button[data-testid="baseButton-secondary"]:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+    }
+    
+    /* --- Smooth animations for all interactive elements --- */
+    * {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    /* --- Override for immediate transitions on critical elements --- */
+    .stButton > button,
+    .stRadio > div > label,
+    .stSlider > div,
+    .stNumberInput input,
+    .stDateInput input,
+    .stTimeInput input,
+    .stSelectbox select {
+        transition: all 0.2s ease-in-out !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -315,6 +430,58 @@ st.set_page_config(
         'About': 'Application de gestion intelligente de la consommation énergétique'
     }
 )
+
+# Configuration pour mobile
+st.markdown("""
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script>
+        // Amélioration de l'expérience mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            // Détection mobile
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Amélioration des transitions
+                const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+                const mainContent = document.querySelector('.main .block-container');
+                
+                if (sidebar && mainContent) {
+                    // Observer les changements de la sidebar
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
+                                const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
+                                mainContent.style.transition = 'all 0.3s ease-in-out';
+                                
+                                if (isExpanded) {
+                                    mainContent.style.marginLeft = '0';
+                                    mainContent.style.opacity = '0.9';
+                                } else {
+                                    mainContent.style.marginLeft = '0';
+                                    mainContent.style.opacity = '1';
+                                }
+                            }
+                        });
+                    });
+                    
+                    observer.observe(sidebar, { attributes: true });
+                }
+                
+                // Amélioration des boutons tactiles
+                const buttons = document.querySelectorAll('button');
+                buttons.forEach(button => {
+                    button.addEventListener('touchstart', function() {
+                        this.style.transform = 'scale(0.95)';
+                    });
+                    
+                    button.addEventListener('touchend', function() {
+                        this.style.transform = 'scale(1)';
+                    });
+                });
+            }
+        });
+    </script>
+""", unsafe_allow_html=True)
 
 # --- SIDEBAR NAVIGATION ---
 with st.sidebar:
