@@ -31,23 +31,22 @@ st.markdown("""
         /* Sidebar adjustments for mobile */
         section[data-testid="stSidebar"] {
             background-color: var(--secondary-background-color);
-            max-width: 100% !important;
-            min-width: 100% !important;
-            transition: all 0.3s ease-in-out !important;
-            z-index: 1000 !important;
-        }
-        
-        /* Sidebar when collapsed on mobile */
-        section[data-testid="stSidebar"][aria-expanded="false"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            height: 100vh !important;
+            width: 280px !important;
+            max-width: 85vw !important;
+            z-index: 9999 !important;
             transform: translateX(-100%) !important;
-            opacity: 0.8 !important;
+            transition: transform 0.3s ease-in-out !important;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.2) !important;
+            overflow-y: auto !important;
         }
         
         /* Sidebar when expanded on mobile */
         section[data-testid="stSidebar"][aria-expanded="true"] {
             transform: translateX(0) !important;
-            opacity: 1 !important;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
         }
         
         /* Main content adjustments */
@@ -55,12 +54,30 @@ st.markdown("""
             padding-left: 1rem !important;
             padding-right: 1rem !important;
             max-width: 100% !important;
-            transition: all 0.3s ease-in-out !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
         }
         
-        /* Smooth transition for main content when sidebar opens */
-        .main .block-container[data-sidebar-expanded="true"] {
-            margin-left: 0 !important;
+        /* Overlay background when sidebar is open */
+        .main .block-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Show overlay when sidebar is expanded */
+        section[data-testid="stSidebar"][aria-expanded="true"] ~ .main .block-container::before {
+            opacity: 1;
+            visibility: visible;
         }
         
         /* Gradient title responsive */
@@ -119,6 +136,37 @@ st.markdown("""
         /* Sidebar title responsive */
         .sidebar-title {
             font-size: 1.4em !important;
+        }
+        
+        /* Sidebar content improvements */
+        section[data-testid="stSidebar"] .stRadio > div {
+            margin: 0.5rem 0 !important;
+            padding: 0.8rem !important;
+            border-radius: 8px !important;
+            background: rgba(255,255,255,0.1) !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        section[data-testid="stSidebar"] .stRadio > div:hover {
+            background: rgba(0,114,255,0.1) !important;
+            transform: translateX(4px) !important;
+        }
+        
+        section[data-testid="stSidebar"] .stRadio > div > label {
+            font-size: 1.1em !important;
+            font-weight: 500 !important;
+            color: var(--text-color) !important;
+        }
+        
+        /* Sidebar logo improvements */
+        .sidebar-logo {
+            margin: 1rem 0 !important;
+            padding: 1rem !important;
+        }
+        
+        .sidebar-logo img {
+            width: 50px !important;
+            height: 50px !important;
         }
         
         /* Form elements responsive */
@@ -219,6 +267,11 @@ st.markdown("""
             font-size: 1.1em !important;
             padding: 0.8rem !important;
             border-radius: 8px !important;
+        }
+        
+        /* Prevent body scroll when sidebar is open */
+        body.sidebar-open {
+            overflow: hidden !important;
         }
     }
     
@@ -441,30 +494,55 @@ st.markdown("""
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
-                // Amélioration des transitions
                 const sidebar = document.querySelector('section[data-testid="stSidebar"]');
                 const mainContent = document.querySelector('.main .block-container');
+                const body = document.body;
                 
                 if (sidebar && mainContent) {
+                    // Créer l'overlay
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.5);
+                        z-index: 9998;
+                        opacity: 0;
+                        visibility: hidden;
+                        transition: all 0.3s ease-in-out;
+                    `;
+                    document.body.appendChild(overlay);
+                    
                     // Observer les changements de la sidebar
                     const observer = new MutationObserver(function(mutations) {
                         mutations.forEach(function(mutation) {
                             if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
                                 const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
-                                mainContent.style.transition = 'all 0.3s ease-in-out';
                                 
                                 if (isExpanded) {
-                                    mainContent.style.marginLeft = '0';
-                                    mainContent.style.opacity = '0.9';
+                                    overlay.style.opacity = '1';
+                                    overlay.style.visibility = 'visible';
+                                    body.classList.add('sidebar-open');
                                 } else {
-                                    mainContent.style.marginLeft = '0';
-                                    mainContent.style.opacity = '1';
+                                    overlay.style.opacity = '0';
+                                    overlay.style.visibility = 'hidden';
+                                    body.classList.remove('sidebar-open');
                                 }
                             }
                         });
                     });
                     
                     observer.observe(sidebar, { attributes: true });
+                    
+                    // Fermer la sidebar en cliquant sur l'overlay
+                    overlay.addEventListener('click', function() {
+                        const sidebarButton = document.querySelector('button[data-testid="baseButton-secondary"]');
+                        if (sidebarButton) {
+                            sidebarButton.click();
+                        }
+                    });
                 }
                 
                 // Amélioration des boutons tactiles
@@ -475,6 +553,18 @@ st.markdown("""
                     });
                     
                     button.addEventListener('touchend', function() {
+                        this.style.transform = 'scale(1)';
+                    });
+                });
+                
+                // Amélioration des éléments de navigation
+                const radioButtons = document.querySelectorAll('.stRadio > div > label');
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('touchstart', function() {
+                        this.style.transform = 'scale(0.98)';
+                    });
+                    
+                    radio.addEventListener('touchend', function() {
                         this.style.transform = 'scale(1)';
                     });
                 });
