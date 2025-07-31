@@ -26,6 +26,117 @@ st.markdown("""
         background-color: var(--background-color);
     }
     
+    /* --- Mobile Responsive Design --- */
+    @media (max-width: 768px) {
+        /* Sidebar adjustments for mobile */
+        section[data-testid="stSidebar"] {
+            background-color: var(--secondary-background-color);
+            max-width: 100% !important;
+            min-width: 100% !important;
+        }
+        
+        /* Main content adjustments */
+        .main .block-container {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            max-width: 100% !important;
+        }
+        
+        /* Gradient title responsive */
+        .gradient-title {
+            font-size: 2.2em !important;
+            line-height: 1.2 !important;
+            margin-bottom: 0.5em !important;
+        }
+        
+        /* Slogan box responsive */
+        .slogan-box {
+            font-size: 1.1em !important;
+            padding: 0.8em 1.2em !important;
+            margin-bottom: 1em !important;
+        }
+        
+        /* Feature cards responsive */
+        .feature-card {
+            margin: 0.3em 0 !important;
+            padding: 1.2em !important;
+        }
+        
+        .feature-icon {
+            font-size: 2em !important;
+        }
+        
+        .feature-title {
+            font-size: 1.1em !important;
+        }
+        
+        .feature-desc {
+            font-size: 0.9em !important;
+        }
+        
+        /* Page headers responsive */
+        .page-header {
+            font-size: 1.8em !important;
+            line-height: 1.3 !important;
+        }
+        
+        /* Intro and conclusion boxes responsive */
+        .intro-box, .conclusion-box {
+            padding: 1em !important;
+            margin: 1em 0 !important;
+        }
+        
+        .intro-box h3, .conclusion-box h3 {
+            font-size: 1.3em !important;
+        }
+        
+        /* Sidebar title responsive */
+        .sidebar-title {
+            font-size: 1.4em !important;
+        }
+        
+        /* Form elements responsive */
+        .stForm > div {
+            padding: 0.5rem !important;
+        }
+        
+        /* Dataframe responsive */
+        .stDataFrame {
+            font-size: 0.8em !important;
+        }
+        
+        /* Charts responsive */
+        .js-plotly-plot {
+            max-width: 100% !important;
+        }
+        
+        /* Metrics responsive */
+        .metric-container {
+            padding: 0.5rem !important;
+        }
+        
+        /* Button responsive */
+        .stButton > button {
+            width: 100% !important;
+            margin: 0.2rem 0 !important;
+        }
+        
+        /* Slider responsive */
+        .stSlider > div {
+            padding: 0.3rem 0 !important;
+        }
+        
+        /* Columns responsive - stack on mobile */
+        .row-widget.stHorizontal {
+            flex-direction: column !important;
+        }
+        
+        .row-widget.stHorizontal > div {
+            width: 100% !important;
+            margin: 0.2rem 0 !important;
+        }
+    }
+    
     /* --- Sidebar --- */
     section[data-testid="stSidebar"] {
         background-color: var(--secondary-background-color);
@@ -153,13 +264,56 @@ st.markdown("""
         padding-bottom: 0.3em;
         margin-bottom: 1em;
     }
+    
+    /* --- Mobile-specific improvements --- */
+    @media (max-width: 480px) {
+        /* Extra small screens */
+        .gradient-title {
+            font-size: 1.8em !important;
+        }
+        
+        .slogan-box {
+            font-size: 1em !important;
+            padding: 0.6em 1em !important;
+        }
+        
+        .feature-card {
+            padding: 1em !important;
+            margin: 0.2em 0 !important;
+        }
+        
+        .page-header {
+            font-size: 1.5em !important;
+        }
+        
+        /* Improve touch targets */
+        .stButton > button {
+            min-height: 44px !important;
+            font-size: 1.1em !important;
+        }
+        
+        /* Better spacing for mobile */
+        .stMarkdown {
+            margin-bottom: 0.5rem !important;
+        }
+        
+        /* Responsive tables */
+        .stDataFrame > div {
+            overflow-x: auto !important;
+        }
+    }
     </style>
 """, unsafe_allow_html=True)
 
 st.set_page_config(
     page_title="Gestion intelligente de la consommation énergétique",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed",
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': 'Application de gestion intelligente de la consommation énergétique'
+    }
 )
 
 # --- SIDEBAR NAVIGATION ---
@@ -263,8 +417,9 @@ if menu == "🏠 Accueil":
         caption="L'intelligence artificielle appliquée à l'énergie (crédit : Unsplash)",
         use_container_width=True
     )
-    col1, col2, col3 = st.columns(3)
-    with col1:
+    # Utilisation de colonnes responsives qui s'adaptent à la taille d'écran
+    cols = st.columns([1, 1, 1])
+    with cols[0]:
         st.markdown(
             '<div class="feature-card">'
             '<div class="feature-icon">⚡</div>'
@@ -273,7 +428,7 @@ if menu == "🏠 Accueil":
             '</div>',
             unsafe_allow_html=True
         )
-    with col2:
+    with cols[1]:
         st.markdown(
             '<div class="feature-card">'
             '<div class="feature-icon">🤖</div>'
@@ -282,7 +437,7 @@ if menu == "🏠 Accueil":
             '</div>',
             unsafe_allow_html=True
         )
-    with col3:
+    with cols[2]:
         st.markdown(
             '<div class="feature-card">'
             '<div class="feature-icon">🔔</div>'
@@ -301,22 +456,31 @@ elif menu == "🔎 Exploration des données":
     st.subheader("Consommation moyenne par heure")
     hourly = df.groupby('hour')['Appliances'].mean()
     fig1 = px.line(x=hourly.index, y=hourly.values, labels={'x':'Heure','y':'Consommation moyenne (Wh)'})
+    fig1.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig1, use_container_width=True)
+    
     st.subheader("Consommation moyenne par jour de la semaine")
     days = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
     weekly = df.groupby('day_of_week')['Appliances'].mean()
     fig2 = px.bar(x=days, y=weekly.values, labels={'x':'Jour','y':'Consommation moyenne (Wh)'})
+    fig2.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig2, use_container_width=True)
+    
     st.subheader("Consommation moyenne par mois")
     monthly = df.groupby('month')['Appliances'].mean()
     fig3 = px.bar(x=monthly.index, y=monthly.values, labels={'x':'Mois','y':'Consommation moyenne (Wh)'})
+    fig3.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig3, use_container_width=True)
+    
     st.subheader("Évolution de la consommation dans le temps")
     fig4 = px.line(x=df['date'], y=df['Appliances'], labels={'x':'Date','y':'Consommation (Wh)'})
+    fig4.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig4, use_container_width=True)
+    
     st.subheader("Matrice de corrélation")
     corr = df.corr(numeric_only=True)
     fig5 = px.imshow(corr, text_auto=True, aspect="auto", color_continuous_scale='RdBu', origin='lower')
+    fig5.update_layout(height=500, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig5, use_container_width=True)
 
 # 3. Modélisation
@@ -354,6 +518,7 @@ elif menu == "📈 Modélisation":
                   color_discrete_sequence=["#636EFA", "#EF553B"])
     fig6.data[0].name = 'Vrai'
     fig6.data[1].name = 'Prédit'
+    fig6.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig6, use_container_width=True)
     
     if hasattr(model, 'feature_importances_'):
@@ -361,6 +526,7 @@ elif menu == "📈 Modélisation":
         importances = model.feature_importances_
         imp_df = pd.DataFrame({'feature': X_train.columns, 'importance': importances}).sort_values(by='importance', ascending=False)
         fig7 = px.bar(imp_df, x='importance', y='feature', orientation='h')
+        fig7.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
         st.plotly_chart(fig7, use_container_width=True)
 
 elif menu == "🔮 Prédiction Personnalisée":
@@ -444,28 +610,34 @@ elif menu == "🔮 Prédiction Personnalisée":
         st.time_input("Heure", key='pred_time')
         
         st.subheader("🏠 Conditions Intérieures")
-        col1, col2 = st.columns(2)
-        with col1:
+        # Utilisation de colonnes responsives pour mobile
+        cols_int = st.columns([1, 1])
+        with cols_int[0]:
             st.slider("Température intérieure moyenne (°C)", -10.0, 40.0, key='pred_temp_mean', step=0.1)
-        with col2:
+        with cols_int[1]:
             st.slider("Humidité intérieure moyenne (%)", 0.0, 100.0, key='pred_hum_mean', step=1.0)
 
         st.subheader("🌦️ Conditions Extérieures")
-        col3, col4, col5 = st.columns(3)
-        with col3:
+        # Colonnes responsives pour les conditions extérieures
+        cols_ext1 = st.columns([1, 1])
+        with cols_ext1[0]:
             st.slider("Température extérieure (°C)", -20.0, 50.0, key='pred_t_out', step=0.1)
+        with cols_ext1[1]:
             st.slider("Humidité extérieure (%)", 0.0, 100.0, key='pred_rh_out', step=1.0)
-        with col4:
+        
+        cols_ext2 = st.columns([1, 1])
+        with cols_ext2[0]:
             st.slider("Vitesse du vent (km/h)", 0.0, 80.0, key='pred_windspeed', step=0.1)
+        with cols_ext2[1]:
             st.slider("Visibilité (km)", 0.0, 50.0, key='pred_visibility', step=0.1)
-        with col5:
-            st.slider("Point de rosée (°C)", -20.0, 30.0, key='pred_tdewpoint', step=0.1)
+        
+        st.slider("Point de rosée (°C)", -20.0, 30.0, key='pred_tdewpoint', step=0.1)
 
         st.subheader("⚡ Données contextuelles (avancé)")
-        col6, col7 = st.columns(2)
-        with col6:
+        cols_ctx = st.columns([1, 1])
+        with cols_ctx[0]:
             st.number_input("Conso. moy. des 20 dernières min (Wh)", key='pred_app_roll_mean', step=1.0)
-        with col7:
+        with cols_ctx[1]:
             st.number_input("Temp. ext. moy. des 50 dernières min (°C)", key='pred_t_out_roll_mean', step=0.1)
         
         # Le bouton de soumission appelle la fonction make_prediction
@@ -477,22 +649,19 @@ elif menu == "🔮 Prédiction Personnalisée":
         st.markdown("---")
         st.subheader("📊 Résultat de la Prédiction")
         
-        col_result1, col_result2 = st.columns(2)
+        # Affichage des résultats optimisé pour mobile
+        st.metric(
+            label="Consommation d'énergie prédite (pour 10 min)", 
+            value=f"{st.session_state.prediction_result:.2f} Wh"
+        )
         
-        with col_result1:
-            st.metric(
-                label="Consommation d'énergie prédite (pour 10 min)", 
-                value=f"{st.session_state.prediction_result:.2f} Wh"
-            )
-        
-        with col_result2:
-            delta = st.session_state.prediction_result - st.session_state.avg_for_hour_result
-            st.metric(
-                label=f"Comparaison avec la moyenne pour {st.session_state.hour_of_prediction_result}h", 
-                value=f"{st.session_state.avg_for_hour_result:.2f} Wh", 
-                delta=f"{delta:.2f} Wh", 
-                delta_color="inverse"
-            )
+        delta = st.session_state.prediction_result - st.session_state.avg_for_hour_result
+        st.metric(
+            label=f"Comparaison avec la moyenne pour {st.session_state.hour_of_prediction_result}h", 
+            value=f"{st.session_state.avg_for_hour_result:.2f} Wh", 
+            delta=f"{delta:.2f} Wh", 
+            delta_color="inverse"
+        )
         
         st.markdown("---")
         st.button("🔄 Prédire une nouvelle valeur", on_click=reset_form, help="Efface le formulaire et les résultats pour une nouvelle prédiction.")
@@ -515,6 +684,7 @@ elif menu == "🧩 Clustering et profils":
     
     st.subheader("Projection PCA + KMeans (3 clusters)")
     fig8 = px.scatter(x=X_pca[:,0], y=X_pca[:,1], color=clusters.astype(str), labels={'x':'PC1','y':'PC2','color':'Cluster'})
+    fig8.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig8, use_container_width=True)
     
     st.subheader("Profils moyens par cluster")
@@ -539,6 +709,7 @@ elif menu == "🚨 Détection d'anomalies":
     fig9 = px.scatter(x=df.index, y=df['Appliances'], color=df['anomaly'],
                      color_discrete_map={'normal':'#636EFA','anomalie':'#EF553B'},
                      labels={'x':'Date','y':'Consommation (Wh)','color':'Type'})
+    fig9.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig9, use_container_width=True)
     st.write(f"Nombre d'anomalies détectées : {sum(df['anomaly']=='anomalie')}")
 
@@ -589,6 +760,7 @@ elif menu == "🤖 Optimisation (Q-learning)":
     st.subheader("Distribution des actions choisies par l'agent")
     fig10 = px.histogram(hist_df, x='action', nbins=3, labels={'action':'Action'},
                         category_orders={'action':[0,1,2]})
+    fig10.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=40))
     st.plotly_chart(fig10, use_container_width=True)
     
     st.subheader("Évolution moyenne de la récompense (Q-learning)")
@@ -602,7 +774,9 @@ elif menu == "🤖 Optimisation (Q-learning)":
             xaxis_title="step",
             yaxis_title="reward",
             legend=dict(x=0.85, y=1.05),
-            template="plotly_white"
+            template="plotly_white",
+            height=400,
+            margin=dict(l=20, r=20, t=40, b=40)
         )
         st.plotly_chart(fig_reward, use_container_width=True)
     else:
