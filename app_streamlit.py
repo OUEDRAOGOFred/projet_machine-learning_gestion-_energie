@@ -28,15 +28,15 @@ st.markdown("""
     
     /* --- Mobile Responsive Design --- */
     @media (max-width: 768px) {
-        /* Reset all sidebar positioning */
+        /* Force sidebar to be completely hidden by default */
         section[data-testid="stSidebar"] {
             position: fixed !important;
             top: 0 !important;
-            left: -100% !important;
+            left: -100vw !important;
             height: 100vh !important;
             width: 280px !important;
             max-width: 85vw !important;
-            z-index: 99999 !important;
+            z-index: 999999 !important;
             background-color: var(--secondary-background-color) !important;
             box-shadow: 2px 0 20px rgba(0,0,0,0.3) !important;
             overflow-y: auto !important;
@@ -44,14 +44,16 @@ st.markdown("""
             border: none !important;
             margin: 0 !important;
             padding: 1rem !important;
+            transform: none !important;
         }
         
-        /* Sidebar when expanded */
+        /* Force sidebar to slide in when expanded */
         section[data-testid="stSidebar"][aria-expanded="true"] {
             left: 0 !important;
+            transform: none !important;
         }
         
-        /* Main content - ensure it stays in place */
+        /* Ensure main content stays in place and doesn't move */
         .main .block-container {
             padding-left: 1rem !important;
             padding-right: 1rem !important;
@@ -61,18 +63,19 @@ st.markdown("""
             width: 100% !important;
             position: relative !important;
             z-index: 1 !important;
+            transform: none !important;
         }
         
-        /* Create overlay effect */
-        .main .block-container::after {
+        /* Create a proper overlay that covers the entire screen */
+        .main .block-container::before {
             content: '';
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: rgba(0,0,0,0.5);
-            z-index: 99998;
+            z-index: 999998;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease-in-out;
@@ -80,28 +83,64 @@ st.markdown("""
         }
         
         /* Show overlay when sidebar is expanded */
-        section[data-testid="stSidebar"][aria-expanded="true"] ~ .main .block-container::after {
+        section[data-testid="stSidebar"][aria-expanded="true"] ~ .main .block-container::before {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
         }
         
-        /* Alternative overlay method */
-        section[data-testid="stSidebar"][aria-expanded="true"] + .main::before {
+        /* Alternative overlay method using body */
+        body::before {
             content: '';
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: rgba(0,0,0,0.5);
-            z-index: 99998;
+            z-index: 999997;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+            pointer-events: none;
+        }
+        
+        /* Show body overlay when sidebar is expanded */
+        section[data-testid="stSidebar"][aria-expanded="true"] ~ body::before {
+            opacity: 1;
+            visibility: visible;
             pointer-events: auto;
         }
         
-        /* Prevent body scroll when sidebar is open */
+        /* Prevent any body scroll when sidebar is open */
         body {
             overflow-x: hidden !important;
+        }
+        
+        /* Force all content to stay in place */
+        .main {
+            position: relative !important;
+            z-index: 1 !important;
+            transform: none !important;
+        }
+        
+        /* Ensure no content can overlap the sidebar */
+        * {
+            box-sizing: border-box !important;
+        }
+        
+        /* Force sidebar to be completely independent */
+        section[data-testid="stSidebar"] * {
+            position: relative !important;
+            z-index: inherit !important;
+        }
+        
+        /* Ensure main content never moves */
+        .main, .main *, .block-container, .block-container * {
+            position: static !important;
+            transform: none !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
         }
         
         /* Gradient title responsive */
@@ -299,7 +338,7 @@ st.markdown("""
             min-width: 44px !important;
             border-radius: 8px !important;
             transition: all 0.2s ease !important;
-            z-index: 100000 !important;
+            z-index: 1000000 !important;
         }
         
         button[data-testid="baseButton-secondary"]:hover {
@@ -551,18 +590,49 @@ st.markdown("""
                     });
                 });
                 
-                // Gestion de l'overlay via CSS uniquement
+                // Gestion de l'overlay et du scroll
                 const sidebar = document.querySelector('section[data-testid="stSidebar"]');
                 if (sidebar) {
-                    // Observer les changements de la sidebar pour gérer le scroll
+                    // Créer un overlay manuel si nécessaire
+                    let manualOverlay = null;
+                    
                     const observer = new MutationObserver(function(mutations) {
                         mutations.forEach(function(mutation) {
                             if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
                                 const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
                                 
                                 if (isExpanded) {
+                                    // Créer un overlay manuel si les CSS ne fonctionnent pas
+                                    if (!manualOverlay) {
+                                        manualOverlay = document.createElement('div');
+                                        manualOverlay.style.cssText = `
+                                            position: fixed;
+                                            top: 0;
+                                            left: 0;
+                                            width: 100vw;
+                                            height: 100vh;
+                                            background: rgba(0,0,0,0.5);
+                                            z-index: 999997;
+                                            pointer-events: auto;
+                                        `;
+                                        document.body.appendChild(manualOverlay);
+                                        
+                                        // Fermer la sidebar en cliquant sur l'overlay
+                                        manualOverlay.addEventListener('click', function() {
+                                            const sidebarButton = document.querySelector('button[data-testid="baseButton-secondary"]');
+                                            if (sidebarButton) {
+                                                sidebarButton.click();
+                                            }
+                                        });
+                                    }
+                                    
                                     document.body.style.overflow = 'hidden';
                                 } else {
+                                    // Supprimer l'overlay manuel
+                                    if (manualOverlay) {
+                                        manualOverlay.remove();
+                                        manualOverlay = null;
+                                    }
                                     document.body.style.overflow = '';
                                 }
                             }
