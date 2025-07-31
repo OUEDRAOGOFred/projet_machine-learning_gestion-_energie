@@ -35,18 +35,25 @@ st.markdown("""
         
         /* CREATE MOBILE MENU BUTTON */
         .mobile-menu-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1000000;
-            background: #0072ff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            z-index: 10000000 !important;
+            background: #0072ff !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 15px !important;
+            font-size: 20px !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+            display: block !important;
+            width: 50px !important;
+            height: 50px !important;
+            line-height: 1 !important;
+            text-align: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
         
         /* MOBILE MENU OVERLAY */
@@ -463,23 +470,40 @@ st.markdown("""
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
-                // Create mobile menu button
+                // Hide the original sidebar completely
+                const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+                if (sidebar) {
+                    sidebar.style.display = 'none';
+                }
+                
+                // Hide the original sidebar button
+                const sidebarButton = document.querySelector('button[data-testid="baseButton-secondary"]');
+                if (sidebarButton) {
+                    sidebarButton.style.display = 'none';
+                }
+                
+                // Create mobile menu button with higher z-index
                 const menuBtn = document.createElement('button');
                 menuBtn.className = 'mobile-menu-btn';
                 menuBtn.innerHTML = '☰';
                 menuBtn.style.cssText = `
-                    position: fixed;
-                    top: 10px;
-                    left: 10px;
-                    z-index: 1000000;
-                    background: #0072ff;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 12px;
-                    font-size: 18px;
-                    cursor: pointer;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                    position: fixed !important;
+                    top: 20px !important;
+                    left: 20px !important;
+                    z-index: 10000000 !important;
+                    background: #0072ff !important;
+                    color: white !important;
+                    border: none !important;
+                    border-radius: 8px !important;
+                    padding: 15px !important;
+                    font-size: 20px !important;
+                    cursor: pointer !important;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+                    display: block !important;
+                    width: 50px !important;
+                    height: 50px !important;
+                    line-height: 1 !important;
+                    text-align: center !important;
                 `;
                 document.body.appendChild(menuBtn);
                 
@@ -487,14 +511,14 @@ st.markdown("""
                 const menuOverlay = document.createElement('div');
                 menuOverlay.className = 'mobile-menu-overlay';
                 menuOverlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.8);
-                    z-index: 999999;
-                    display: none;
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    background: rgba(0,0,0,0.8) !important;
+                    z-index: 999999 !important;
+                    display: none !important;
                 `;
                 document.body.appendChild(menuOverlay);
                 
@@ -502,21 +526,20 @@ st.markdown("""
                 const menuContent = document.createElement('div');
                 menuContent.className = 'mobile-menu-content';
                 menuContent.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 280px;
-                    height: 100%;
-                    background: var(--secondary-background-color);
-                    z-index: 1000000;
-                    padding: 20px;
-                    overflow-y: auto;
-                    transform: translateX(-100%);
-                    transition: transform 0.3s ease;
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 280px !important;
+                    height: 100% !important;
+                    background: var(--secondary-background-color) !important;
+                    z-index: 1000000 !important;
+                    padding: 20px !important;
+                    overflow-y: auto !important;
+                    transform: translateX(-100%) !important;
+                    transition: transform 0.3s ease !important;
                 `;
                 
                 // Copy sidebar content to mobile menu
-                const sidebar = document.querySelector('section[data-testid="stSidebar"]');
                 if (sidebar) {
                     menuContent.innerHTML = sidebar.innerHTML;
                 }
@@ -558,6 +581,13 @@ st.markdown("""
                         this.style.transform = 'scale(1)';
                     });
                 });
+                
+                // Force button to be visible
+                setTimeout(() => {
+                    menuBtn.style.display = 'block';
+                    menuBtn.style.visibility = 'visible';
+                    menuBtn.style.opacity = '1';
+                }, 100);
             }
         });
     </script>
