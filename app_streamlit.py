@@ -464,132 +464,118 @@ st.set_page_config(
 # Configuration pour mobile
 st.markdown("""
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- MOBILE MENU BUTTON - DIRECT HTML -->
+    <div id="mobile-menu-container" style="display: none;">
+        <button id="mobile-menu-btn" style="
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            z-index: 10000000 !important;
+            background: #0072ff !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 15px !important;
+            font-size: 20px !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+            display: block !important;
+            width: 50px !important;
+            height: 50px !important;
+            line-height: 1 !important;
+            text-align: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        ">☰</button>
+        
+        <div id="mobile-menu-overlay" style="
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0,0,0,0.8) !important;
+            z-index: 999999 !important;
+            display: none !important;
+        "></div>
+        
+        <div id="mobile-menu-content" style="
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 280px !important;
+            height: 100% !important;
+            background: var(--secondary-background-color) !important;
+            z-index: 1000000 !important;
+            padding: 20px !important;
+            overflow-y: auto !important;
+            transform: translateX(-100%) !important;
+            transition: transform 0.3s ease !important;
+        "></div>
+    </div>
+    
     <script>
-        // MOBILE MENU SOLUTION - FINAL FIX
-        document.addEventListener('DOMContentLoaded', function() {
+        // IMMEDIATE MOBILE MENU FIX
+        (function() {
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
-                // Hide the original sidebar completely
+                // Show mobile menu container immediately
+                const container = document.getElementById('mobile-menu-container');
+                if (container) {
+                    container.style.display = 'block';
+                }
+                
+                // Hide original sidebar
                 const sidebar = document.querySelector('section[data-testid="stSidebar"]');
                 if (sidebar) {
                     sidebar.style.display = 'none';
                 }
                 
-                // Hide the original sidebar button
+                // Hide original sidebar button
                 const sidebarButton = document.querySelector('button[data-testid="baseButton-secondary"]');
                 if (sidebarButton) {
                     sidebarButton.style.display = 'none';
                 }
                 
-                // Create mobile menu button with higher z-index
-                const menuBtn = document.createElement('button');
-                menuBtn.className = 'mobile-menu-btn';
-                menuBtn.innerHTML = '☰';
-                menuBtn.style.cssText = `
-                    position: fixed !important;
-                    top: 20px !important;
-                    left: 20px !important;
-                    z-index: 10000000 !important;
-                    background: #0072ff !important;
-                    color: white !important;
-                    border: none !important;
-                    border-radius: 8px !important;
-                    padding: 15px !important;
-                    font-size: 20px !important;
-                    cursor: pointer !important;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-                    display: block !important;
-                    width: 50px !important;
-                    height: 50px !important;
-                    line-height: 1 !important;
-                    text-align: center !important;
-                `;
-                document.body.appendChild(menuBtn);
+                // Setup mobile menu functionality
+                const menuBtn = document.getElementById('mobile-menu-btn');
+                const menuOverlay = document.getElementById('mobile-menu-overlay');
+                const menuContent = document.getElementById('mobile-menu-content');
                 
-                // Create mobile menu overlay
-                const menuOverlay = document.createElement('div');
-                menuOverlay.className = 'mobile-menu-overlay';
-                menuOverlay.style.cssText = `
-                    position: fixed !important;
-                    top: 0 !important;
-                    left: 0 !important;
-                    width: 100% !important;
-                    height: 100% !important;
-                    background: rgba(0,0,0,0.8) !important;
-                    z-index: 999999 !important;
-                    display: none !important;
-                `;
-                document.body.appendChild(menuOverlay);
-                
-                // Create mobile menu content
-                const menuContent = document.createElement('div');
-                menuContent.className = 'mobile-menu-content';
-                menuContent.style.cssText = `
-                    position: fixed !important;
-                    top: 0 !important;
-                    left: 0 !important;
-                    width: 280px !important;
-                    height: 100% !important;
-                    background: var(--secondary-background-color) !important;
-                    z-index: 1000000 !important;
-                    padding: 20px !important;
-                    overflow-y: auto !important;
-                    transform: translateX(-100%) !important;
-                    transition: transform 0.3s ease !important;
-                `;
-                
-                // Copy sidebar content to mobile menu
-                if (sidebar) {
-                    menuContent.innerHTML = sidebar.innerHTML;
-                }
-                
-                menuOverlay.appendChild(menuContent);
-                
-                // Toggle menu
-                menuBtn.addEventListener('click', function() {
-                    if (menuOverlay.style.display === 'block') {
-                        menuOverlay.style.display = 'none';
-                        menuContent.style.transform = 'translateX(-100%)';
-                        document.body.style.overflow = '';
-                    } else {
-                        menuOverlay.style.display = 'block';
-                        setTimeout(() => {
-                            menuContent.style.transform = 'translateX(0)';
-                        }, 10);
-                        document.body.style.overflow = 'hidden';
+                if (menuBtn && menuOverlay && menuContent) {
+                    // Copy sidebar content
+                    if (sidebar) {
+                        menuContent.innerHTML = sidebar.innerHTML;
                     }
-                });
-                
-                // Close menu when clicking overlay
-                menuOverlay.addEventListener('click', function(e) {
-                    if (e.target === menuOverlay) {
-                        menuOverlay.style.display = 'none';
-                        menuContent.style.transform = 'translateX(-100%)';
-                        document.body.style.overflow = '';
-                    }
-                });
-                
-                // Touch feedback
-                const buttons = document.querySelectorAll('button');
-                buttons.forEach(button => {
-                    button.addEventListener('touchstart', function() {
-                        this.style.transform = 'scale(0.95)';
+                    
+                    // Toggle menu
+                    menuBtn.addEventListener('click', function() {
+                        if (menuOverlay.style.display === 'block') {
+                            menuOverlay.style.display = 'none';
+                            menuContent.style.transform = 'translateX(-100%)';
+                            document.body.style.overflow = '';
+                        } else {
+                            menuOverlay.style.display = 'block';
+                            setTimeout(() => {
+                                menuContent.style.transform = 'translateX(0)';
+                            }, 10);
+                            document.body.style.overflow = 'hidden';
+                        }
                     });
                     
-                    button.addEventListener('touchend', function() {
-                        this.style.transform = 'scale(1)';
+                    // Close menu when clicking overlay
+                    menuOverlay.addEventListener('click', function(e) {
+                        if (e.target === menuOverlay) {
+                            menuOverlay.style.display = 'none';
+                            menuContent.style.transform = 'translateX(-100%)';
+                            document.body.style.overflow = '';
+                        }
                     });
-                });
-                
-                // Force button to be visible
-                setTimeout(() => {
-                    menuBtn.style.display = 'block';
-                    menuBtn.style.visibility = 'visible';
-                    menuBtn.style.opacity = '1';
-                }, 100);
+                }
             }
-        });
+        })();
     </script>
 """, unsafe_allow_html=True)
 
