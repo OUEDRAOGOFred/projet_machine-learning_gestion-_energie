@@ -28,28 +28,30 @@ st.markdown("""
     
     /* --- Mobile Responsive Design --- */
     @media (max-width: 768px) {
-        /* Sidebar adjustments for mobile */
+        /* Reset all sidebar positioning */
         section[data-testid="stSidebar"] {
-            background-color: var(--secondary-background-color);
             position: fixed !important;
             top: 0 !important;
-            left: 0 !important;
+            left: -100% !important;
             height: 100vh !important;
             width: 280px !important;
             max-width: 85vw !important;
-            z-index: 9999 !important;
-            transform: translateX(-100%) !important;
-            transition: transform 0.3s ease-in-out !important;
-            box-shadow: 2px 0 20px rgba(0,0,0,0.2) !important;
+            z-index: 99999 !important;
+            background-color: var(--secondary-background-color) !important;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.3) !important;
             overflow-y: auto !important;
+            transition: left 0.3s ease-in-out !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 1rem !important;
         }
         
-        /* Sidebar when expanded on mobile */
+        /* Sidebar when expanded */
         section[data-testid="stSidebar"][aria-expanded="true"] {
-            transform: translateX(0) !important;
+            left: 0 !important;
         }
         
-        /* Main content adjustments */
+        /* Main content - ensure it stays in place */
         .main .block-container {
             padding-left: 1rem !important;
             padding-right: 1rem !important;
@@ -57,10 +59,12 @@ st.markdown("""
             margin-left: 0 !important;
             margin-right: 0 !important;
             width: 100% !important;
+            position: relative !important;
+            z-index: 1 !important;
         }
         
-        /* Overlay background when sidebar is open */
-        .main .block-container::before {
+        /* Create overlay effect */
+        .main .block-container::after {
             content: '';
             position: fixed;
             top: 0;
@@ -68,16 +72,36 @@ st.markdown("""
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            z-index: 9998;
+            z-index: 99998;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease-in-out;
+            pointer-events: none;
         }
         
         /* Show overlay when sidebar is expanded */
-        section[data-testid="stSidebar"][aria-expanded="true"] ~ .main .block-container::before {
+        section[data-testid="stSidebar"][aria-expanded="true"] ~ .main .block-container::after {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
+        }
+        
+        /* Alternative overlay method */
+        section[data-testid="stSidebar"][aria-expanded="true"] + .main::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99998;
+            pointer-events: auto;
+        }
+        
+        /* Prevent body scroll when sidebar is open */
+        body {
+            overflow-x: hidden !important;
         }
         
         /* Gradient title responsive */
@@ -269,9 +293,18 @@ st.markdown("""
             border-radius: 8px !important;
         }
         
-        /* Prevent body scroll when sidebar is open */
-        body.sidebar-open {
-            overflow: hidden !important;
+        /* Sidebar toggle button improvements */
+        button[data-testid="baseButton-secondary"] {
+            min-height: 44px !important;
+            min-width: 44px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+            z-index: 100000 !important;
+        }
+        
+        button[data-testid="baseButton-secondary"]:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
         }
     }
     
@@ -494,57 +527,6 @@ st.markdown("""
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
-                const sidebar = document.querySelector('section[data-testid="stSidebar"]');
-                const mainContent = document.querySelector('.main .block-container');
-                const body = document.body;
-                
-                if (sidebar && mainContent) {
-                    // Créer l'overlay
-                    const overlay = document.createElement('div');
-                    overlay.style.cssText = `
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0,0,0,0.5);
-                        z-index: 9998;
-                        opacity: 0;
-                        visibility: hidden;
-                        transition: all 0.3s ease-in-out;
-                    `;
-                    document.body.appendChild(overlay);
-                    
-                    // Observer les changements de la sidebar
-                    const observer = new MutationObserver(function(mutations) {
-                        mutations.forEach(function(mutation) {
-                            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
-                                const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
-                                
-                                if (isExpanded) {
-                                    overlay.style.opacity = '1';
-                                    overlay.style.visibility = 'visible';
-                                    body.classList.add('sidebar-open');
-                                } else {
-                                    overlay.style.opacity = '0';
-                                    overlay.style.visibility = 'hidden';
-                                    body.classList.remove('sidebar-open');
-                                }
-                            }
-                        });
-                    });
-                    
-                    observer.observe(sidebar, { attributes: true });
-                    
-                    // Fermer la sidebar en cliquant sur l'overlay
-                    overlay.addEventListener('click', function() {
-                        const sidebarButton = document.querySelector('button[data-testid="baseButton-secondary"]');
-                        if (sidebarButton) {
-                            sidebarButton.click();
-                        }
-                    });
-                }
-                
                 // Amélioration des boutons tactiles
                 const buttons = document.querySelectorAll('button');
                 buttons.forEach(button => {
@@ -568,6 +550,27 @@ st.markdown("""
                         this.style.transform = 'scale(1)';
                     });
                 });
+                
+                // Gestion de l'overlay via CSS uniquement
+                const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+                if (sidebar) {
+                    // Observer les changements de la sidebar pour gérer le scroll
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
+                                const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
+                                
+                                if (isExpanded) {
+                                    document.body.style.overflow = 'hidden';
+                                } else {
+                                    document.body.style.overflow = '';
+                                }
+                            }
+                        });
+                    });
+                    
+                    observer.observe(sidebar, { attributes: true });
+                }
             }
         });
     </script>
