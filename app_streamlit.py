@@ -28,45 +28,58 @@ st.markdown("""
     
     /* --- Mobile Responsive Design --- */
     @media (max-width: 768px) {
-        /* COMPLETE SIDEBAR OVERHAUL - FINAL FIX */
-        
-        /* Force sidebar to be completely outside viewport by default */
+        /* HIDE SIDEBAR COMPLETELY ON MOBILE */
         section[data-testid="stSidebar"] {
-            position: fixed !important;
-            top: 0 !important;
-            left: -100% !important;
-            height: 100vh !important;
-            width: 280px !important;
-            max-width: 85vw !important;
-            z-index: 999999 !important;
-            background-color: var(--secondary-background-color) !important;
-            box-shadow: 2px 0 20px rgba(0,0,0,0.3) !important;
-            overflow-y: auto !important;
-            transition: left 0.3s ease-in-out !important;
-            border: none !important;
-            margin: 0 !important;
-            padding: 1rem !important;
-            transform: none !important;
-            display: block !important;
+            display: none !important;
         }
         
-        /* Force sidebar to slide in when expanded */
-        section[data-testid="stSidebar"][aria-expanded="true"] {
-            left: 0 !important;
-            transform: none !important;
+        /* CREATE MOBILE MENU BUTTON */
+        .mobile-menu-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000000;
+            background: #0072ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
-        /* COMPLETELY ISOLATE MAIN CONTENT */
-        .main {
-            position: relative !important;
-            z-index: 1 !important;
-            transform: none !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
+        /* MOBILE MENU OVERLAY */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999999;
+            display: none;
         }
         
+        .mobile-menu-content {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--secondary-background-color);
+            z-index: 1000000;
+            padding: 20px;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.active .mobile-menu-content {
+            transform: translateX(0);
+        }
+        
+        /* MAIN CONTENT - NO SIDEBAR INTERFERENCE */
         .main .block-container {
             padding-left: 1rem !important;
             padding-right: 1rem !important;
@@ -76,79 +89,6 @@ st.markdown("""
             width: 100% !important;
             position: relative !important;
             z-index: 1 !important;
-            transform: none !important;
-        }
-        
-        /* CREATE OVERLAY THAT COVERS ENTIRE SCREEN */
-        .main .block-container::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999998;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease-in-out;
-            pointer-events: none;
-        }
-        
-        /* SHOW OVERLAY WHEN SIDEBAR IS EXPANDED */
-        section[data-testid="stSidebar"][aria-expanded="true"] ~ .main .block-container::before {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-        
-        /* ALTERNATIVE OVERLAY ON BODY */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999997;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease-in-out;
-            pointer-events: none;
-        }
-        
-        /* SHOW BODY OVERLAY WHEN SIDEBAR IS EXPANDED */
-        section[data-testid="stSidebar"][aria-expanded="true"] ~ body::before {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-        
-        /* PREVENT ANY SCROLLING WHEN SIDEBAR IS OPEN */
-        body {
-            overflow-x: hidden !important;
-        }
-        
-        /* FORCE ALL CONTENT TO STAY IN PLACE */
-        .main, .main *, .block-container, .block-container * {
-            position: static !important;
-            transform: none !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            left: auto !important;
-            right: auto !important;
-        }
-        
-        /* ENSURE NO CONTENT CAN OVERLAP */
-        * {
-            box-sizing: border-box !important;
-        }
-        
-        /* FORCE SIDEBAR TO BE COMPLETELY INDEPENDENT */
-        section[data-testid="stSidebar"] * {
-            position: relative !important;
-            z-index: inherit !important;
         }
         
         /* Gradient title responsive */
@@ -202,42 +142,6 @@ st.markdown("""
         
         .intro-box h3, .conclusion-box h3 {
             font-size: 1.3em !important;
-        }
-        
-        /* Sidebar title responsive */
-        .sidebar-title {
-            font-size: 1.4em !important;
-        }
-        
-        /* Sidebar content improvements */
-        section[data-testid="stSidebar"] .stRadio > div {
-            margin: 0.5rem 0 !important;
-            padding: 0.8rem !important;
-            border-radius: 8px !important;
-            background: rgba(255,255,255,0.1) !important;
-            transition: all 0.2s ease !important;
-        }
-        
-        section[data-testid="stSidebar"] .stRadio > div:hover {
-            background: rgba(0,114,255,0.1) !important;
-            transform: translateX(4px) !important;
-        }
-        
-        section[data-testid="stSidebar"] .stRadio > div > label {
-            font-size: 1.1em !important;
-            font-weight: 500 !important;
-            color: var(--text-color) !important;
-        }
-        
-        /* Sidebar logo improvements */
-        .sidebar-logo {
-            margin: 1rem 0 !important;
-            padding: 1rem !important;
-        }
-        
-        .sidebar-logo img {
-            width: 50px !important;
-            height: 50px !important;
         }
         
         /* Form elements responsive */
@@ -338,20 +242,6 @@ st.markdown("""
             font-size: 1.1em !important;
             padding: 0.8rem !important;
             border-radius: 8px !important;
-        }
-        
-        /* Sidebar toggle button improvements */
-        button[data-testid="baseButton-secondary"] {
-            min-height: 44px !important;
-            min-width: 44px !important;
-            border-radius: 8px !important;
-            transition: all 0.2s ease !important;
-            z-index: 1000000 !important;
-        }
-        
-        button[data-testid="baseButton-secondary"]:hover {
-            transform: scale(1.1) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
         }
     }
     
@@ -568,13 +458,96 @@ st.set_page_config(
 st.markdown("""
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script>
-        // FINAL MOBILE FIX - ULTIMATE SOLUTION
+        // MOBILE MENU SOLUTION - FINAL FIX
         document.addEventListener('DOMContentLoaded', function() {
-            // Détection mobile
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
-                // Amélioration des boutons tactiles
+                // Create mobile menu button
+                const menuBtn = document.createElement('button');
+                menuBtn.className = 'mobile-menu-btn';
+                menuBtn.innerHTML = '☰';
+                menuBtn.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    left: 10px;
+                    z-index: 1000000;
+                    background: #0072ff;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 12px;
+                    font-size: 18px;
+                    cursor: pointer;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                `;
+                document.body.appendChild(menuBtn);
+                
+                // Create mobile menu overlay
+                const menuOverlay = document.createElement('div');
+                menuOverlay.className = 'mobile-menu-overlay';
+                menuOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    z-index: 999999;
+                    display: none;
+                `;
+                document.body.appendChild(menuOverlay);
+                
+                // Create mobile menu content
+                const menuContent = document.createElement('div');
+                menuContent.className = 'mobile-menu-content';
+                menuContent.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 280px;
+                    height: 100%;
+                    background: var(--secondary-background-color);
+                    z-index: 1000000;
+                    padding: 20px;
+                    overflow-y: auto;
+                    transform: translateX(-100%);
+                    transition: transform 0.3s ease;
+                `;
+                
+                // Copy sidebar content to mobile menu
+                const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+                if (sidebar) {
+                    menuContent.innerHTML = sidebar.innerHTML;
+                }
+                
+                menuOverlay.appendChild(menuContent);
+                
+                // Toggle menu
+                menuBtn.addEventListener('click', function() {
+                    if (menuOverlay.style.display === 'block') {
+                        menuOverlay.style.display = 'none';
+                        menuContent.style.transform = 'translateX(-100%)';
+                        document.body.style.overflow = '';
+                    } else {
+                        menuOverlay.style.display = 'block';
+                        setTimeout(() => {
+                            menuContent.style.transform = 'translateX(0)';
+                        }, 10);
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+                
+                // Close menu when clicking overlay
+                menuOverlay.addEventListener('click', function(e) {
+                    if (e.target === menuOverlay) {
+                        menuOverlay.style.display = 'none';
+                        menuContent.style.transform = 'translateX(-100%)';
+                        document.body.style.overflow = '';
+                    }
+                });
+                
+                // Touch feedback
                 const buttons = document.querySelectorAll('button');
                 buttons.forEach(button => {
                     button.addEventListener('touchstart', function() {
@@ -585,84 +558,6 @@ st.markdown("""
                         this.style.transform = 'scale(1)';
                     });
                 });
-                
-                // Amélioration des éléments de navigation
-                const radioButtons = document.querySelectorAll('.stRadio > div > label');
-                radioButtons.forEach(radio => {
-                    radio.addEventListener('touchstart', function() {
-                        this.style.transform = 'scale(0.98)';
-                    });
-                    
-                    radio.addEventListener('touchend', function() {
-                        this.style.transform = 'scale(1)';
-                    });
-                });
-                
-                // ULTIMATE SIDEBAR MANAGEMENT
-                const sidebar = document.querySelector('section[data-testid="stSidebar"]');
-                if (sidebar) {
-                    // Créer un overlay manuel comme backup
-                    let manualOverlay = null;
-                    
-                    // Force sidebar positioning
-                    sidebar.style.position = 'fixed';
-                    sidebar.style.left = '-100%';
-                    sidebar.style.zIndex = '999999';
-                    
-                    const observer = new MutationObserver(function(mutations) {
-                        mutations.forEach(function(mutation) {
-                            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
-                                const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
-                                
-                                if (isExpanded) {
-                                    // Force sidebar to slide in
-                                    sidebar.style.left = '0';
-                                    
-                                    // Create manual overlay as backup
-                                    if (!manualOverlay) {
-                                        manualOverlay = document.createElement('div');
-                                        manualOverlay.style.cssText = `
-                                            position: fixed;
-                                            top: 0;
-                                            left: 0;
-                                            width: 100%;
-                                            height: 100%;
-                                            background: rgba(0,0,0,0.5);
-                                            z-index: 999998;
-                                            pointer-events: auto;
-                                        `;
-                                        document.body.appendChild(manualOverlay);
-                                        
-                                        // Close sidebar when clicking overlay
-                                        manualOverlay.addEventListener('click', function() {
-                                            const sidebarButton = document.querySelector('button[data-testid="baseButton-secondary"]');
-                                            if (sidebarButton) {
-                                                sidebarButton.click();
-                                            }
-                                        });
-                                    }
-                                    
-                                    // Prevent body scroll
-                                    document.body.style.overflow = 'hidden';
-                                } else {
-                                    // Force sidebar to slide out
-                                    sidebar.style.left = '-100%';
-                                    
-                                    // Remove manual overlay
-                                    if (manualOverlay) {
-                                        manualOverlay.remove();
-                                        manualOverlay = null;
-                                    }
-                                    
-                                    // Restore body scroll
-                                    document.body.style.overflow = '';
-                                }
-                            }
-                        });
-                    });
-                    
-                    observer.observe(sidebar, { attributes: true });
-                }
             }
         });
     </script>
